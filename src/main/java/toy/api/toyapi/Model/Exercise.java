@@ -6,6 +6,7 @@ import java.util.List;
 
 public class Exercise {
     public ExerciseType type;
+    public String language;
     public String question;
 
     public List<File> resources = new ArrayList<>();

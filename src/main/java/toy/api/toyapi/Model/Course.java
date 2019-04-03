@@ -6,5 +6,7 @@ import java.util.List;
 public class Course {
     public String name;
     public String description;
+    public String owner;
+
     public List<Assignment> assignments = new ArrayList<>();
 }

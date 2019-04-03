@@ -1,7 +1,8 @@
 package toy.api.toyapi;
 
+ import com.fasterxml.jackson.databind.DeserializationFeature;
  import com.fasterxml.jackson.databind.ObjectMapper;
- import com.fasterxml.jackson.core.type.TypeReference;
+ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
  import toy.api.toyapi.Model.Assignment;
  import toy.api.toyapi.Model.Course;
  import toy.api.toyapi.Model.Exercise;
@@ -16,6 +17,7 @@ public class Cacher {
  	static final String REPO_DIR = "repo";
 	static final String REPO_URL = "https://github.com/mp-access/course_structure.git";
 	static public List<Course> courses = new ArrayList<>();
+	static ObjectMapper mapper;
  	//static public HashMap<File, String> cache = new HashMap<>();
 
 	List<String> media_ext = Arrays.asList(".jpg", ".jpeg", ".png", ".mp3", ".mp4");
@@ -26,26 +28,14 @@ public class Cacher {
     public static void main(String[] args) {
 		gitPull();
 
-	 	Cacher server = new Cacher();
-		ObjectMapper objectMapper = new ObjectMapper();
+	 	Cacher cacher = new Cacher();
+		mapper = new ObjectMapper(new YAMLFactory());
+		mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 		Course course = new Course();
+		courses.add(course);
 
-		try {
-			String s = readFile(new File(REPO_DIR + "/course.json"));
-
-			courses.add(course);
-			Map<String, Object> map = objectMapper.readValue(s, new TypeReference<Map<String,Object>>(){});
-
-			course.name = (String)map.get("name");
-			course.description = (String)map.get("description");
-
-
-		}catch(Exception e){
-			e.printStackTrace();
-		}
-		server.cacheRepo(new File(REPO_DIR), course);
+		cacher.cacheRepo(new File(REPO_DIR), course);
 		System.out.println(course);
-
     }
 
 	static String readFile(File file){
@@ -84,9 +74,31 @@ public class Cacher {
 	  	}else{
 			if(ignore_file.contains(file.getName())) return;
 
-			if(context instanceof Exercise){
+			if(context instanceof Course) {
+				if(file.getName().equals("course.yml")){
+					try {
+						context = mapper.readValue(file, Course.class);
+					}catch(Exception e){
+						e.printStackTrace();
+					}
+				}
+			}else if(context instanceof Assignment) {
+				if(file.getName().equals("assignment.yml")){
+					try {
+						context = mapper.readValue(file, Assignment.class);
+					}catch(Exception e){
+						e.printStackTrace();
+					}
+				}
+			}else if(context instanceof Exercise){
 				if(file.getName().equals("question.md")){
 					((Exercise)context).question =	readFile(file);
+				}else if(file.getName().equals("exercise.yml")){
+					try {
+						context = mapper.readValue(file, Exercise.class);
+					}catch(Exception e){
+						e.printStackTrace();
+					}
 				}
 			}
 
@@ -117,7 +129,7 @@ public class Cacher {
     	repoDir.mkdirs();
     	
     	try{
-			Process process = Runtime.getRuntime().exec("git clone " + REPO_URL + " " + REPO_DIR);
+			Process process = Runtime.getRuntime().exec("git clone --branch proposal " + REPO_URL + " " + REPO_DIR);
 			BufferedReader output = new BufferedReader(new InputStreamReader(process.getInputStream()));
 			String msg = output.readLine();
 			System.out.println(msg);
