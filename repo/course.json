@@ -1,0 +1,41 @@
+{
+    "name": "Informatics 1",
+    "description": "course description",
+    "groups": [
+        {
+            "slug": "assignment_01",
+            "publishingDate": "2019-05-01",
+            "deadline": "2019-05-08",
+            "items": [
+                {
+                    "slug":"intro",
+                    "language":"python3"
+                },
+                {
+                    "slug":"exercise_01",
+                    "language":"python3"
+                },
+                {
+                    "slug":"exercise_02",
+                    "language":"python3"
+                }
+            ]
+        },
+        {
+            "slug": "chapter_01",
+            "publishingDate": "2019-05-01",
+            "deadline": "2019-05-08",
+            "items": [
+                {
+                    "slug":"chapter_01"
+                },
+                {
+                    "slug":"chapter_02"               
+                },
+                {
+                    "slug":"chapter_03"
+                }
+            ]
+        }
+    ]
+}
