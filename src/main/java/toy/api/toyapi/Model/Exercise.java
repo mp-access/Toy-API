@@ -14,4 +14,9 @@ public class Exercise {
     public List<File> templates = new ArrayList<>();
     public List<File> publicTests = new ArrayList<>();
     public List<File> privateTests = new ArrayList<>();
+
+    public void set(Exercise other){
+        this.type = other.type;
+        this.language = other.language;
+    }
 }

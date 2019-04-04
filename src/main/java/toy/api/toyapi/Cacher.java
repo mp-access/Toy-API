@@ -77,7 +77,7 @@ public class Cacher {
 			if(context instanceof Course) {
 				if(file.getName().equals("course.yml")){
 					try {
-						context = mapper.readValue(file, Course.class);
+						((Course)context).set(mapper.readValue(file, Course.class));
 					}catch(Exception e){
 						e.printStackTrace();
 					}
@@ -85,7 +85,7 @@ public class Cacher {
 			}else if(context instanceof Assignment) {
 				if(file.getName().equals("assignment.yml")){
 					try {
-						context = mapper.readValue(file, Assignment.class);
+						((Assignment)context).set(mapper.readValue(file, Assignment.class));
 					}catch(Exception e){
 						e.printStackTrace();
 					}
@@ -95,7 +95,7 @@ public class Cacher {
 					((Exercise)context).question =	readFile(file);
 				}else if(file.getName().equals("exercise.yml")){
 					try {
-						context = mapper.readValue(file, Exercise.class);
+						((Exercise)context).set(mapper.readValue(file, Exercise.class));
 					}catch(Exception e){
 						e.printStackTrace();
 					}
