@@ -10,6 +10,7 @@ public class Exercise {
     public String question;
 
     public List<File> resources = new ArrayList<>();
+    public List<File> sources = new ArrayList<>();
 
     public List<File> templates = new ArrayList<>();
     public List<File> publicTests = new ArrayList<>();

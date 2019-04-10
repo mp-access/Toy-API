@@ -16,9 +16,25 @@ package toy.api.toyapi;
 public class Cacher {
  	static final String REPO_DIR = "repo";
 	static final String REPO_URL = "https://github.com/mp-access/course_structure.git";
+
+	// FOLDERS
+	static final String ASSIGNMENT_FOLDER_PREFIX = "assignment";
+	static final String EXERCISE_FOLDER_PREFIX = "exercise";
+	static final String PUBLIC_EVAL_NAME = "public_eval";
+	static final String PRIVATE_EVAL_NAME = "private_eval";
+	static final String TEMPLATE_NAME = "template";
+	static final String RESOURCE_NAME = "src";
+	static final String SOURCE_NAME = "res";
+
+	// FILES
+	static final String COURSE_FILE_NAME = "course.yml";
+	static final String ASSIGNMENT_FILE_NAME = "assignment.yml";
+	static final String EXERCISE_FILE_NAME = "exercise.yml";
+	static final String QUESTION_FILE_NAME = "question.md";
+
+
 	static public List<Course> courses = new ArrayList<>();
 	static ObjectMapper mapper;
- 	//static public HashMap<File, String> cache = new HashMap<>();
 
 	List<String> media_ext = Arrays.asList(".jpg", ".jpeg", ".png", ".mp3", ".mp4");
 	List<String> ignore_dir = Arrays.asList(".git");
@@ -58,14 +74,24 @@ public class Cacher {
 	  		if(ignore_dir.contains(file.getName())) return;
 
 	  		Object next_context = context;
-			if(file.getName().startsWith("assignment")){
+			if(file.getName().startsWith(ASSIGNMENT_FOLDER_PREFIX)){
 				Assignment assignment = new Assignment();
 				((Course)context).assignments.add(assignment);
 				next_context = assignment;
-			}else if(file.getName().startsWith("exercise")){
+			}else if(file.getName().startsWith(EXERCISE_FOLDER_PREFIX)){
 				Exercise exercise = new Exercise();
 				((Assignment)context).exercises.add(exercise);
 				next_context = exercise;
+			}else if(file.getName().startsWith(PRIVATE_EVAL_NAME)){
+				listFiles(file, ((Exercise)context).privateTests);
+			}else if(file.getName().startsWith(PUBLIC_EVAL_NAME)){
+				listFiles(file, ((Exercise)context).publicTests);
+			}else if(file.getName().startsWith(TEMPLATE_NAME)){
+				listFiles(file, ((Exercise)context).templates);
+			}else if(file.getName().startsWith(RESOURCE_NAME)){
+				listFiles(file, ((Exercise)context).resources);
+			}else if(file.getName().startsWith(SOURCE_NAME)){
+				listFiles(file, ((Exercise)context).sources);
 			}
 
 	    	String[] children = file.list(); 
@@ -75,7 +101,7 @@ public class Cacher {
 			if(ignore_file.contains(file.getName())) return;
 
 			if(context instanceof Course) {
-				if(file.getName().equals("course.yml")){
+				if(file.getName().equals(COURSE_FILE_NAME)){
 					try {
 						((Course)context).set(mapper.readValue(file, Course.class));
 					}catch(Exception e){
@@ -83,7 +109,7 @@ public class Cacher {
 					}
 				}
 			}else if(context instanceof Assignment) {
-				if(file.getName().equals("assignment.yml")){
+				if(file.getName().equals(ASSIGNMENT_FILE_NAME)){
 					try {
 						((Assignment)context).set(mapper.readValue(file, Assignment.class));
 					}catch(Exception e){
@@ -91,9 +117,9 @@ public class Cacher {
 					}
 				}
 			}else if(context instanceof Exercise){
-				if(file.getName().equals("question.md")){
+				if(file.getName().equals(QUESTION_FILE_NAME)){
 					((Exercise)context).question =	readFile(file);
-				}else if(file.getName().equals("exercise.yml")){
+				}else if(file.getName().equals(EXERCISE_FILE_NAME)){
 					try {
 						((Exercise)context).set(mapper.readValue(file, Exercise.class));
 					}catch(Exception e){
@@ -101,16 +127,19 @@ public class Cacher {
 					}
 				}
 			}
-
-			/*
-	  		if(media_ext.contains(file.getName().substring(file.getName().lastIndexOf(".")))) {
-		  		cache.put(file, file.getPath());				
-  			}else{  				
-		  		cache.put(file, readFile(file));
-			}
-	  		*/
 	  	}
     }
+
+    public static void listFiles(File dir, List<File> fileList){
+		if (dir.isDirectory())
+		{
+			String[] children = dir.list();
+			for (int i=0; i<children.length; i++)
+				listFiles(new File(dir, children[i]), fileList);
+		}else {
+			fileList.add(dir);
+		}
+	}
 
 	public static boolean deleteDir(File dir) 
 	{ 
